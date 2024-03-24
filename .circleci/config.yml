@@ -1,0 +1,62 @@
+version: 2.1
+jobs:
+  lint-dockerfile:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: checkout karsajobs branch
+          command: git clone -b karsajobs https://github.com/NetherP/a433-microservices.git
+      - run:
+          name: get hadolint
+          command: wget https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -O hadolint
+      - run:
+          name: change permission
+          command: chmod +x hadolint
+      - run:
+          name: run hadolint on dockerfile
+          command: ./hadolint a433-microservices/Dockerfile
+      - persist_to_workspace:
+          root: a433-microservices
+          paths:
+            - ./*
+  test-app:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: get golang dependency
+          command: apt update && apt install -y golang-go
+      - run:
+          name: test backend
+          working_directory: a433-microservices
+          command: go test -v -short --count=1 $(go list ./...)
+  build-app-karsajobs:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - attach_workspace:
+          at: .
+      # Replace this with steps to deploy to users
+      - run:
+          name: build docker image
+          working_directory: a433-microservices
+          command: docker build -t ghcr.io/netherp/karsajobs:latest .
+      - run:
+          name: login registry
+          command: echo $PASSWORD_GITHUB_PACKAGES | docker login ghcr.io -u NetherP --password-stdin
+      - run:
+          name: push to ghcr
+          command: docker push ghcr.io/netherp/karsajobs:latest
+workflows:
+  example:
+    jobs:
+      - lint-dockerfile
+      - test-app:
+          requires:
+            - lint-dockerfile
+      - build-app-karsajobs:
+          requires:
+            - lint-dockerfile
