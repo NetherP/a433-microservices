@@ -32,8 +32,9 @@ jobs:
           command: go test -v -short --count=1 $(go list ./...)
   build-app-karsajobs:
     docker:
-      - image: cimg/base:2022.09
+      - image: cimg/base:stable
     steps:
+      - setup_remote_docker
       - run:
           name: checkout karsajobs branch
           command: git clone -b karsajobs https://github.com/NetherP/a433-microservices.git
