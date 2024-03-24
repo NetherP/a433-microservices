@@ -28,7 +28,7 @@ jobs:
           at: .
       - run:
           name: get golang dependency
-          command: apt update && apt install -y golang-go
+          command: sudo apt update && sudo apt install -y golang-go
       - run:
           name: test backend
           working_directory: a433-microservices
@@ -51,7 +51,7 @@ jobs:
           name: push to ghcr
           command: docker push ghcr.io/netherp/karsajobs:latest
 workflows:
-  example:
+  karsajobs-cicd:
     jobs:
       - lint-dockerfile
       - test-app:
