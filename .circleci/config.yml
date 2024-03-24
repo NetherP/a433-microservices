@@ -40,13 +40,13 @@ jobs:
       - run:
           name: build docker image
           working_directory: a433-microservices
-          command: docker build -t ghcr.io/netherp/karsajobs:latest .
+          command: sudo docker build -t ghcr.io/netherp/karsajobs:latest .
       - run:
           name: login registry
-          command: echo $PASSWORD_GITHUB_PACKAGES | docker login ghcr.io -u NetherP --password-stdin
+          command: echo $PASSWORD_GITHUB_PACKAGES | sudo docker login ghcr.io -u NetherP --password-stdin
       - run:
           name: push to ghcr
-          command: docker push ghcr.io/netherp/karsajobs:latest
+          command: sudo docker push ghcr.io/netherp/karsajobs:latest
 workflows:
   karsajobs-cicd:
     jobs:
