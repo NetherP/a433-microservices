@@ -5,8 +5,8 @@ jobs:
       - image: cimg/base:stable
     steps:
       - run:
-          name: checkout karsajobs branch
-          command: git clone -b karsajobs https://github.com/NetherP/a433-microservices.git
+          name: checkout karsajobs-ui branch
+          command: git clone -b karsajobs-ui https://github.com/NetherP/a433-microservices.git
       - run:
           name: get hadolint
           command: wget https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -O hadolint
@@ -16,45 +16,28 @@ jobs:
       - run:
           name: run hadolint on dockerfile
           command: ./hadolint a433-microservices/Dockerfile
-  test-app:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: checkout karsajobs branch
-          command: git clone -b karsajobs https://github.com/NetherP/a433-microservices.git
-      - run:
-          name: get golang dependency
-          command: sudo apt update && sudo apt install -y golang-go
-      - run:
-          name: test backend
-          working_directory: a433-microservices
-          command: go test -v -short --count=1 $(go list ./...)
-  build-app-karsajobs:
+  build-app-karsajobs-ui:
     docker:
       - image: cimg/base:stable
     steps:
       - setup_remote_docker
       - run:
-          name: checkout karsajobs branch
-          command: git clone -b karsajobs https://github.com/NetherP/a433-microservices.git
+          name: checkout karsajobs-ui branch
+          command: git clone -b karsajobs-ui https://github.com/NetherP/a433-microservices.git
       - run:
           name: build docker image
           working_directory: a433-microservices
-          command: docker build -t ghcr.io/netherp/karsajobs:latest .
+          command: docker build -t ghcr.io/netherp/karsajobs-ui:latest .
       - run:
           name: login registry
           command: echo $PASSWORD_GITHUB_PACKAGES | docker login ghcr.io -u NetherP --password-stdin
       - run:
           name: push to ghcr
-          command: docker push ghcr.io/netherp/karsajobs:latest
+          command: docker push ghcr.io/netherp/karsajobs-ui:latest
 workflows:
-  karsajobs-cicd:
+  karsajobs-ui-cicd:
     jobs:
       - lint-dockerfile
-      - test-app:
-          requires:
-            - lint-dockerfile
-      - build-app-karsajobs:
+      - build-app-karsajobs-ui:
           requires:
             - lint-dockerfile
